@@ -1,30 +1,23 @@
-
-var path = require('path');
-var webpack = require('webpack');
+const path = require('path')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 var vtkRules = require('vtk.js/Utilities/config/dependency.js').webpack.core.rules;
 
-// Optional if you want to load *.css and *.module.css files
-// var cssRules = require('vtk.js/Utilities/config/dependency.js').webpack.css.rules;
 
-var entry = path.join(__dirname, './src/index.js');
-const sourcePath = path.join(__dirname, './src');
-const outputPath = path.join(__dirname, './dist');
+//创建一个插件的实例对象
+const htmlPlugin = new HtmlWebpackPlugin({
+    template: path.join(__dirname, './src/index.html'),//源文件
+    filename: 'index.html'
+})
 
 module.exports = {
-  entry,
-  output: {
-    path: outputPath,
-    filename: 'MyWebApp.js',
-  },
-  module: {
-    rules: [
-        { test: /\.html$/, loader: 'html-loader' },
-    ].concat(vtkRules),
-  },
-  resolve: {
-    modules: [
-      path.resolve(__dirname, 'node_modules'),
-      sourcePath,
+    mode: 'development',
+    plugins: [
+        htmlPlugin
     ],
-  },
-};
+    module: {
+        rules: [
+            { test: /\.html$/, loader: 'html-loader' },
+            {test: /\.js|jsx$/, use: 'babel-loader', exclude:/node_modules/}//一定要加exclude
+        ].concat(vtkRules),
+      },   
+}
