@@ -17,7 +17,8 @@ module.exports = {
     module: {
         rules: [
             { test: /\.html$/, loader: 'html-loader' },
-            {test: /\.js|jsx$/, use: 'babel-loader', exclude:/node_modules/}//一定要加exclude
+            {test: /\.js|jsx$/, use: 'babel-loader', exclude:/node_modules/},//一定要加exclude
+            { test: /.css$/, use: ['style-loader', 'css-loader']}
         ].concat(vtkRules),
       },   
 }

@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-
 import ReactDOM from 'react-dom';
 
 import vtkFullScreenRenderWindow from 'vtk.js/Sources/Rendering/Misc/FullScreenRenderWindow';
@@ -13,13 +12,15 @@ import { FieldDataTypes } from 'vtk.js/Sources/Common/DataModel/DataSet/Constant
 
 import controlPanel from './controller.html';
 
+
+class DOM extends Component {
+
+    componentDidMount(){
+      
 const fullScreenRenderer = vtkFullScreenRenderWindow.newInstance();
 const renderer = fullScreenRenderer.getRenderer();
 const renderWindow = fullScreenRenderer.getRenderWindow();
 
-// ----------------------------------------------------------------------------
-// Example code
-// ----------------------------------------------------------------------------
 
 const coneSource = vtkConeSource.newInstance({ height: 1.0 });
 const filter = vtkCalculator.newInstance();
@@ -39,6 +40,10 @@ filter.setFormula({
     }
   },
 });
+// ----------------------------------------------------------------------------
+// Console Zone
+console.log('filter', filter);
+// ----------------------------------------------------------------------------
 
 const mapper = vtkMapper.newInstance();
 mapper.setInputConnection(filter.getOutputPort());
@@ -48,6 +53,7 @@ actor.setMapper(mapper);
 
 renderer.addActor(actor);
 renderer.resetCamera();
+// renderWindow.setContainer(querySelector('.container'))
 renderWindow.render();
 
 // -----------------------------------------------------------
@@ -67,18 +73,15 @@ representationSelector.addEventListener('change', (e) => {
 resolutionChange.addEventListener('input', (e) => {
   const resolution = Number(e.target.value);
   coneSource.setResolution(resolution);
+  // console.log('resolution', resolution);
   renderWindow.render();
 });
+    }
 
-
-
-class DOM extends Component {
     render(){
         return(
-            <div>
-                <h1>我是一个大大的react组件</h1>
-            <h2>多亏了webpack的打包功能才有了我</h2>
-            </div>
+          //企图设置DOM容器来load vtk图像
+          <div className="container"></div>
         )
     }
 }
