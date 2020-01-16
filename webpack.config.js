@@ -5,7 +5,7 @@ var vtkRules = require('vtk.js/Utilities/config/dependency.js').webpack.core.rul
 
 //创建一个插件的实例对象
 const htmlPlugin = new HtmlWebpackPlugin({
-    template: path.join(__dirname, './src/index.html'),//源文件
+    template: path.join(__dirname, './public/index.html'),//源文件
     filename: 'index.html'
 })
 
