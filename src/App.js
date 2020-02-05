@@ -23,9 +23,9 @@ class App extends React.Component {
           widgets:[
             {
               x: 0,
-              y: 10, // puts it at the bottom
+              y: 0, // puts it at the bottom
               w: 3,
-              h: 6,
+              h: 3,
               i: new Date().getTime().toString(),
               type: 'bar'
             }
@@ -36,17 +36,17 @@ class App extends React.Component {
   render() {
     return (
         <div>
-            <ResponsiveGridLayout className="layout" >
-                <div key="3" style={{backgroundColor:'#000'} } data-grid={this.state.widgets[0]}>2</div>
-                <div key="4" style={{backgroundColor:'#f05555'} } data-grid={{
+            {/* <ResponsiveGridLayout className="layout" >
+                <div key="3" style={{backgroundColor:'#f0f0f0'} } data-grid={this.state.widgets[0]}><D3/></div>
+                <div key="4" data-grid={{
                     x: 3,
                     y: 0, // puts it at the bottom
                     w: 3,
-                    h: 3,
+                    h: 5,
                     i: new Date().getTime().toString(),
                     type: 'bar'
-                    }}></div>
-            </ResponsiveGridLayout>
+                    }}><DOM/></div>
+            </ResponsiveGridLayout> */}
             <DOM/>
       </div>
       

@@ -1,9 +1,10 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
+import { connect } from 'react-redux'
+
 
 import vtkFullScreenRenderWindow from 'vtk.js/Sources/Rendering/Misc/FullScreenRenderWindow';
 import vtkActor           from 'vtk.js/Sources/Rendering/Core/Actor';
-
 import vtkCalculator      from 'vtk.js/Sources/Filters/General/Calculator';
 import vtkConeSource      from 'vtk.js/Sources/Filters/Sources/ConeSource';
 import vtkMapper          from 'vtk.js/Sources/Rendering/Core/Mapper';
@@ -73,8 +74,14 @@ representationSelector.addEventListener('change', (e) => {
 resolutionChange.addEventListener('input', (e) => {
   const resolution = Number(e.target.value);
   coneSource.setResolution(resolution);
-  // console.log('resolution', resolution);
   renderWindow.render();
+
+  const {dispatch} = this.props
+  dispatch({
+    type: 'submit',
+    value: resolution
+  })
+  console.log(this.props.value);
 });
     }
 
@@ -86,4 +93,8 @@ resolutionChange.addEventListener('input', (e) => {
     }
 }
 
-export default DOM;
+export default connect(state=>{
+  return {
+    value: state
+  }
+})(DOM);
