@@ -28,9 +28,11 @@ class DOM extends Component{
         // ----------------------------------------------------------------------------
         // Example code
         // ----------------------------------------------------------------------------
-       
+        const actor = vtkActor.newInstance();
+        renderer.addActor(actor);
         
         const mapper = vtkMapper.newInstance();
+        actor.setMapper(mapper);
         
         // Build pipeline
         const sphere = vtkSphere.newInstance({ center: [0.0, 0.0, 0.0], radius: 0.5 });
@@ -42,17 +44,8 @@ class DOM extends Component{
         const mCubes = vtkImageMarchingCubes.newInstance({ contourValue: 0.0 });
         
         // Connect the pipeline proper
-        // mCubes.setInputConnection(sample.getOutputPort());
-        mapper.setInputConnection(sample.getOutputPort());
-
-        const actor = vtkActor.newInstance();
-        actor.setMapper(mapper);
-
-
-        renderer.addActor(actor);
-
-        renderWindow.render();
-
+        mCubes.setInputConnection(sample.getOutputPort());
+        mapper.setInputConnection(mCubes.getOutputPort());
         
         // ----------------------------------------------------------------------------
         // UI control handling
