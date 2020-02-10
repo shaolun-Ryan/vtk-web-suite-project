@@ -415,3 +415,158 @@ vtk源码解读
 
 ### /vtk.js
 
+vtk.js是根目录下的js文件，主要定义并暴露了一个vtk函数，该函数内包含几个方法来检查传入的vtk对象的合法性。并且浅拷贝了一个model对象。
+
+### /macro.js
+macro.js是的重要程度在vtk的官方手册中也有提到，它是一切vtk model的父类，所有的actor和source都是继承于macro的属性和方法。
+macro.js主要定义了一些console.log和macro的方法.//L175
+
+在obj类中，作为所有子类的共有方法，主要方法如下：
+* isDeleted()
+* modified()
+* onModified()
+* getMTime()
+* isA()
+* getClassName()
+* set()
+* get()
+* getReferenceByName()
+* deleted()
+* getState()// Add serialization support
+* shallowCopy()//Add shallowCopy(otherInstance) support
+
+在get中类中，定义了get方法//L356
+在set类中，定义了set方法//L436
+
+在vtkAlgorithm类的定义中，定义了 `setInputData()`, `setInputConnection()`, `getOutputData()`, `getOutputPort()` 四种重要的函数
+
+* `setInputData`
+```js
+  function setInputData(dataset, port = 0) {
+    if (model.inputData[port] !== dataset || model.inputConnection[port]) {
+          model.inputData[port] = dataset;
+          model.inputConnection[port] = null;
+          if (publicAPI.modified) {
+            publicAPI.modified();
+          }
+        }
+  }
+```
+在model内部设置了一个inputData的数组，用来将data放置在对应的[port]中(默认是0)
+
+* `getInputData`
+```js
+ function getInputData(port = 0) {
+    if (model.inputConnection[port]) {
+      model.inputData[port] = model.inputConnection[port]();
+    }
+    return model.inputData[port];
+  }
+```
+不用传入任何的参数，直接return一个model.inputData
+
+* `setInputConnection`
+```js
+  model.inputConnection[port] = outputPort;
+```
+
+在model内部又创建了一个inputConenction属性，默认的[port]还是0
+
+* `getInputConnection`
+```js
+  return model.inputConnection[port]
+```
+
+* `addInputConnection`
+```js
+model.numberOfInputs++;
+    setInputConnection(outputPort, model.numberOfInputs - 1);
+```
+该方法是在setIpt的基础上，再在inputConnection数组内增加一个port并add新的Connection
+
+* `addInputData`
+  同上
+
+ok，以上就是对于Inputdata的一些方法。但是vtk的developer，除了data的set和get，还提供了若干种data的相关方法：
+
+* `getOutputPort`
+return的结果是调用getOutputData函数 内部返回的结果，函数是一个嵌套函数
+
+另外，macro还设置了一些全局的方法：
+* update()
+* getNumberOfInputPorts()
+* getNumberOfOutputPorts()
+* getInputArrayToProcess()
+
+除了algo，还有一种叫做event的类，包含多种处理事件的方法及其回调函数，下面将列举一些event class中包含的方法：
+
+* off()
+* on()
+* invoke()
+
+除此之外，还有一种全局的方法，`newInstance`
+```js
+export function newInstance(extend, className) {
+  const constructor = (initialValues = {}) => {
+    const model = {};
+    const publicAPI = {};
+    extend(publicAPI, model, initialValues);
+
+    return Object.freeze(publicAPI);
+  };
+
+  // Register constructor to factory
+  if (className) {
+    vtk.register(className, constructor);
+  }
+
+  return constructor;
+}
+```
+
+macro.js后面包含的就是关于路由proxy的一些算法，
+最后在文档的末尾暴露了一些在文档中定义的算法：
+```js
+export default {
+  algo,
+  capitalize,
+  chain,
+  debounce,
+  enumToString,
+  event,
+  EVENT_ABORT,
+  formatBytesToProperUnit,
+  formatNumbersWithThousandSeparator,
+  get,
+  getArray,
+  getCurrentGlobalMTime,
+  getStateArrayMapFunc,
+  isVtkObject,
+  keystore,
+  newInstance,
+  normalizeWheel,
+  obj,
+  proxy,
+  proxyPropertyMapping,
+  proxyPropertyState,
+  safeArrays,
+  set,
+  setArray,
+  setGet,
+  setGetArray,
+  setImmediate: setImmediateVTK,
+  setLoggerFunction,
+  throttle,
+  traverseInstanceTree,
+  TYPED_ARRAYS,
+  uncapitalize,
+  VOID,
+  vtkDebugMacro,
+  vtkErrorMacro,
+  vtkInfoMacro,
+  vtkLogMacro,
+  vtkOnceErrorMacro,
+  vtkWarningMacro,
+};
+
+```
