@@ -23,7 +23,7 @@ class DOM extends Component {
       const renderWindow = fullScreenRenderer.getRenderWindow();
 
 
-      const coneSource = vtkConeSource.newInstance({ height: 1.0 });
+      const coneSource = vtkConeSource.newInstance({ height: 1.0,resolution: 8 });
       const filter = vtkCalculator.newInstance();
 
       console.log('filter', filter.getFormula().getArrays());
@@ -38,13 +38,21 @@ class DOM extends Component {
           ],
         }),
         evaluate: (arraysIn, arraysOut) => {
+          //getData()
+          //filter.getOutputData().getCellData().getScalars().getData()
           console.log(arraysOut[0].getData());
-          console.log('FieldDataTypes.CELL :', FieldDataTypes);
-          console.log(' AttributeTypes.SCALARS :',AttributeTypes.SCALARS);
+            
+          //const [scalars] 最后返回的scalars是一个Float32Array对象
+          //const scalars 返回的是一个以上述元素为元素的一个数组
+          //
+          //下面的一行code等价于const [a] = [filter.getOutputData().getCellData().getScalars()].map(d=>d.getData())
+          //即arrayOut等价于[filter.getOutputData().getCellData().getScalars()]
+          //可能是只有一个model的关系，如果是多个model的话可能会返回多个
           const [scalars] = arraysOut.map(d => d.getData());
           for (let i = 0; i < scalars.length; i++) {
             scalars[i] = Math.random();
           }
+          console.log(arraysOut[0].getData());
         },
       });
 
@@ -65,8 +73,26 @@ class DOM extends Component {
       // renderWindow.setContainer(querySelector('.container'))
       renderWindow.render();
 
+      function animate(){
+
+        requestAnimationFrame(animate)
+  
+        render()
+  
+      }
+  
+      function render(){
+        actor.rotateX(3)
+  
+        renderWindow.render()
+      }
+  
+      //开启动画
+      animate()
+
       
       //console controls
+      global.coneSource = coneSource
       global.mapper = mapper;
       global.actor = actor;
       global.renderer = renderer;

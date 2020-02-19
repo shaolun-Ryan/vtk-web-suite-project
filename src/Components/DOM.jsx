@@ -3,111 +3,83 @@ import React, { Component } from 'react'
 import 'vtk.js/Sources/favicon';
 
 import vtkActor from 'vtk.js/Sources/Rendering/Core/Actor';
-import vtkFullScreenRenderWindow from 'vtk.js/Sources/Rendering/Misc/FullScreenRenderWindow';
-import vtkImageMarchingCubes from 'vtk.js/Sources/Filters/General/ImageMarchingCubes';
+import vtkConeSource from 'vtk.js/Sources/Filters/Sources/ConeSource';
 import vtkMapper from 'vtk.js/Sources/Rendering/Core/Mapper';
-import vtkSampleFunction from 'vtk.js/Sources/Imaging/Hybrid/SampleFunction';
-import vtkSphere from 'vtk.js/Sources/Common/DataModel/Sphere';
-
-import controlPanel from './6.html';
+import vtkOpenGLRenderWindow from 'vtk.js/Sources/Rendering/OpenGL/RenderWindow';
+import vtkRenderWindow from 'vtk.js/Sources/Rendering/Core/RenderWindow';
+import vtkRenderWindowInteractor from 'vtk.js/Sources/Rendering/Core/RenderWindowInteractor';
+import vtkRenderer from 'vtk.js/Sources/Rendering/Core/Renderer';
+import vtkInteractorStyleTrackballCamera from 'vtk.js/Sources/Interaction/Style/InteractorStyleTrackballCamera';
 
 class DOM extends Component{
 
     componentDidMount(){
 
-       
-        
-        // ----------------------------------------------------------------------------
-        // Standard rendering code setup
-        // ----------------------------------------------------------------------------
-        
-        const fullScreenRenderer = vtkFullScreenRenderWindow.newInstance();
-        const renderer = fullScreenRenderer.getRenderer();
-        const renderWindow = fullScreenRenderer.getRenderWindow();
-        
-        // ----------------------------------------------------------------------------
-        // Example code
-        // ----------------------------------------------------------------------------
-       
-        
-        const mapper = vtkMapper.newInstance();
-        
-        // Build pipeline
-        const sphere = vtkSphere.newInstance({ center: [0.0, 0.0, 0.0], radius: 0.5 });
-        const sample = vtkSampleFunction.newInstance({
-          implicitFunction: sphere,
-          sampleDimensions: [50, 50, 50],
-          modelBounds: [-0.5, 0.5, -0.5, 0.5, -0.5, 0.5],
-        });
-        const mCubes = vtkImageMarchingCubes.newInstance({ contourValue: 0.0 });
-        
-        // Connect the pipeline proper
-        // mCubes.setInputConnection(sample.getOutputPort());
-        mapper.setInputConnection(sample.getOutputPort());
+// ----------------------------------------------------------------------------
+// Standard rendering code setup
+// ----------------------------------------------------------------------------
 
-        const actor = vtkActor.newInstance();
-        actor.setMapper(mapper);
+const renderWindow = vtkRenderWindow.newInstance();
+const renderer = vtkRenderer.newInstance({ background: [0.2, 0.3, 0.4] });
+renderWindow.addRenderer(renderer);
+
+// ----------------------------------------------------------------------------
+// Simple pipeline ConeSource --> Mapper --> Actor
+// ----------------------------------------------------------------------------
+
+const coneSource = vtkConeSource.newInstance({ height: 1.0 });
+
+const mapper = vtkMapper.newInstance();
+mapper.setInputConnection(coneSource.getOutputPort());
+
+const actor = vtkActor.newInstance();
+actor.setMapper(mapper);
+
+// ----------------------------------------------------------------------------
+// Add the actor to the renderer and set the camera based on it
+// ----------------------------------------------------------------------------
+
+renderer.addActor(actor);
+renderer.resetCamera();
+
+// ----------------------------------------------------------------------------
+// Use OpenGL as the backend to view the all this
+// ----------------------------------------------------------------------------
+
+const openglRenderWindow = vtkOpenGLRenderWindow.newInstance();
+renderWindow.addView(openglRenderWindow);
+
+// ----------------------------------------------------------------------------
+// Create a div section to put this into
+// ----------------------------------------------------------------------------
 
 
-        renderer.addActor(actor);
+const container = document.createElement('div');
+document.getElementById('app').appendChild(container);
+openglRenderWindow.setContainer(container);
 
-        renderWindow.render();
+// ----------------------------------------------------------------------------
+// Capture size of the container and set it to the renderWindow
+// ----------------------------------------------------------------------------
 
-        
-        // ----------------------------------------------------------------------------
-        // UI control handling
-        // ----------------------------------------------------------------------------
-        fullScreenRenderer.addController(controlPanel);
-        
-        // Define the isosurface value
-        document.querySelector('.isoValue').addEventListener('input', (e) => {
-          const value = Number(e.target.value);
-          mCubes.setContourValue(value);
-          renderWindow.render();
-        });
-        
-        // Define the volume resolution
-        document.querySelector('.volumeResolution').addEventListener('input', (e) => {
-          const value = Number(e.target.value);
-          sample.setSampleDimensions(value, value, value);
-          renderWindow.render();
-        });
-        
-        // Define the sphere radius
-        document.querySelector('.sphereRadius').addEventListener('input', (e) => {
-          const value = Number(e.target.value);
-          sphere.setRadius(value);
-          renderWindow.render();
-        });
-        
-        // Indicate whether to compute normals or not
-        document.querySelector('.computeNormals').addEventListener('change', (e) => {
-          mCubes.setComputeNormals(!!e.target.checked);
-          renderWindow.render();
-        });
-        
-        // Indicate whether to merge conincident points or not
-        document.querySelector('.mergePoints').addEventListener('change', (e) => {
-          mCubes.setMergePoints(!!e.target.checked);
-          renderWindow.render();
-        });
-        
-        // -----------------------------------------------------------
-        
-        renderer.resetCamera();
-        renderWindow.render();
-        
-        // -----------------------------------------------------------
-        // Make some variables global so that you can inspect and
-        // modify objects in your browser's developer console:
-        // -----------------------------------------------------------
-        
-        global.source = sample;
-        global.filter = mCubes;
-        global.mapper = mapper;
-        global.actor = actor;
-        
+const { width, height } = container.getBoundingClientRect();
+// console.log(container.getBoundingClientRect());
+openglRenderWindow.setSize(width/2, height/2);
 
+// ----------------------------------------------------------------------------
+// Setup an interactor to handle mouse events
+// ----------------------------------------------------------------------------
+
+const interactor = vtkRenderWindowInteractor.newInstance();
+interactor.setView(openglRenderWindow);
+interactor.initialize();
+interactor.bindEvents(container);
+
+// ----------------------------------------------------------------------------
+// Setup interactor style to use
+// ----------------------------------------------------------------------------
+
+interactor.setInteractorStyle(vtkInteractorStyleTrackballCamera.newInstance());
     }
 
     render(){
