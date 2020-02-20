@@ -1,7 +1,4 @@
 import React, { Component } from 'react'
-import ModalDialog from 'react-bootstrap/ModalDialog'
-import Modal from 'react-bootstrap/Modal'
-
 
 import vtkMapper from 'vtk.js/Sources/Rendering/Core/Mapper'
 import ConeSource from 'vtk.js/Sources/Filters/Sources/ConeSource'
@@ -33,15 +30,7 @@ class DOM extends Component{
 
   render(){
     return (
-        //centered的属性的作用没有体现出来
-        <ModalDialog centered={false}>
-            <Modal.Header closeButton>
-                <Modal.Title>VTK Simulation</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <div id="dom-div"></div>
-            </Modal.Body>
-        </ModalDialog>
+        <div id="dom-div"></div>
     )
   }
 }
